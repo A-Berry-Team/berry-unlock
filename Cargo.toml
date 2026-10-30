@@ -1,0 +1,53 @@
+[package]
+name = "berry_unlock"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "BerryUnlock - FPS unlocker for anime-style games, built for Wine/Proton launchers"
+license = "GPL-3.0-only"
+readme = "README.md"
+publish = false
+
+[lib]
+name = "berry_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "berry_unlock"
+path = "src/main.rs"
+
+[features]
+default = []
+# Build a console-subsystem binary (prints help/games/log output to the terminal).
+# The default build uses the GUI subsystem so no console window is ever created.
+console = []
+
+[dependencies]
+memchr = "2"
+serde_json = { version = "1", features = ["preserve_order"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.61"
+features = [
+    "Win32_Foundation",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[profile.release]
+opt-level = 3            # speed (original used "s")
+lto = "fat"
+codegen-units = 1        # best inlining/optimisation, slower compile
+panic = "abort"          # smaller binary, no unwinding machinery
+strip = "symbols"
+debug = false
+debug-assertions = false
+overflow-checks = true   # cheap here; turns silent wrap-around bugs into hard stops
+incremental = false
+
+[profile.dev]
+opt-level = 1

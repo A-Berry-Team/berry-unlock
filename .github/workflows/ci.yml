@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test (host) + check (Windows target)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Install mingw-w64
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 zip
+      - name: Unit tests (portable logic)
+        run: cargo test --lib
+      - name: Type-check Windows layer
+        run: cargo check --target x86_64-pc-windows-gnu
+      - name: rustfmt (non-blocking)
+        continue-on-error: true
+        run: cargo fmt --all -- --check
+      - name: clippy (non-blocking)
+        continue-on-error: true
+        run: cargo clippy --lib --all-targets
+
+  build:
+    name: Release build + DLL verification
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+      - uses: Swatinem/rust-cache@v2
+      - name: Install mingw-w64
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64 zip
+      - run: ./scripts/build.sh
+      - run: ./scripts/verify.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: berry_unlock-windows-x86_64
+          path: |
+            dist/berry_unlock.exe
+            dist/berry_unlock.exe.sha256

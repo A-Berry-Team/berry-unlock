@@ -1,0 +1,13 @@
+[alias]
+build-win = "build --release --target x86_64-pc-windows-gnu"
+check-win = "check --target x86_64-pc-windows-gnu"
+
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+# Fully static C runtime / libgcc / winpthread: the .exe must only import
+# Windows system DLLs (kernel32, ntdll, ...) so it runs in a bare Wine prefix.
+rustflags = [
+    "-C", "target-feature=+crt-static",
+    "-C", "link-arg=-static",
+    "-C", "link-arg=-static-libgcc",
+]

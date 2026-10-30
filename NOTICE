@@ -1,0 +1,12 @@
+BerryUnlock
+Copyright (C) the BerryUnlock authors.
+
+BerryUnlock is a derivative work of KeqingUnlock
+(https://github.com/TwintailTeam/KeqingUnlock), Copyright (C) the
+TwintailTeam contributors, licensed under the GNU General Public License v3.
+
+The source tree, module structure, CLI parser, PE parser, pattern scanner,
+settings patchers and documentation were rewritten, but the unlocking
+techniques and per-game settings layouts originate from KeqingUnlock.
+As a derivative work, BerryUnlock is distributed under the same licence
+(GPL-3.0-only). See LICENSE.
